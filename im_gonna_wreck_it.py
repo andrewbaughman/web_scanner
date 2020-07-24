@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import webbrowser
 import time
+from urllib.parse import parse_qsl, urljoin, urlparse
 
 file_links = open("thelinks.txt", "w")
 all_links = []
@@ -29,20 +30,35 @@ def get_em_all(url, level):
 					continue#print('already done')
 				else:
 					all_links.append(link.get('href'))
-					organize_links(all_links)
 					print(str(level) + " levels deep")
+					if (level % 5 == 0):
+						organize_links(all_links)
 					get_em_all(link.get('href'), level)
 		
 def organize_links(link_list):
 	link_tree = {}
 	for link in link_list:
-		
+		domain = extract_domain(link)
+		print("Original: ", link)
+		print("Extracted: ", domain)
 		website = []
-		website = ['hello','how', 'are', 'you']
+		if domain in link_list:
+			print('here')
+			website.append(link)
+		website.append('yolo')
+		website.append('hello')
+		website.append('hello')
+		#website = ['hello','how', 'are', 'you']
 		link_tree[link] = website
 	display_links(link_tree)
-
-
+	
+def extract_domain(url, remove_http=True):
+    uri = urlparse(url)
+    if remove_http:
+        domain_name = f"{uri.netloc}"
+    else:
+        domain_name = f"{uri.netloc}://{uri.netloc}"
+    return domain_name
 
 def display_links(link_tree):
 	for key, value in link_tree.items():
