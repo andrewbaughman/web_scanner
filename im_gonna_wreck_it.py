@@ -39,17 +39,15 @@ def organize_links(link_list):
 	link_tree = {}
 	for link in link_list:
 		domain = extract_domain(link)
-		print("Original: ", link)
-		print("Extracted: ", domain)
+		#print("Original: ", link)
+		#print("Extracted: ", domain)
 		website = []
-		if domain in link_list:
-			print('here')
+		if domain in link_tree:
+			print('Found domain')
+			link_tree[domain].append(link)
+		else:
 			website.append(link)
-		website.append('yolo')
-		website.append('hello')
-		website.append('hello')
-		#website = ['hello','how', 'are', 'you']
-		link_tree[link] = website
+			link_tree[domain] = website
 	display_links(link_tree)
 	
 def extract_domain(url, remove_http=True):
@@ -62,8 +60,9 @@ def extract_domain(url, remove_http=True):
 
 def display_links(link_tree):
 	for key, value in link_tree.items():
-		print('--------------------------')
-		print(key, ' : ', value)
+		print('===' + key + '===')
+		for item in value:
+			print('---' + item)
 		print('--------------------------')
 
 
