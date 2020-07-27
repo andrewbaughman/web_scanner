@@ -4,13 +4,16 @@ from bs4 import BeautifulSoup
 import webbrowser
 import time
 from urllib.parse import parse_qsl, urljoin, urlparse
+import os
 
 file_links = open("thelinks.txt", "w")
 all_links = []
+done_links = []
 
-def get_em_all(url, level):
-	level = level + 1
-	print("Now entering " + url)
+def get_em_all(url):
+	#print(str(level) + " levels deep")
+	#level = level + 1
+	print("Now entering :  " + url)
 	#webbrowser.open(url, new=2)
 	start = time.time()
 	page = requests.get(url)
@@ -18,6 +21,7 @@ def get_em_all(url, level):
 	if ((end - start) > 5):
 		print('Timeout')
 		return
+	done_links.append(url)
 	soup = BeautifulSoup(page.content, 'html.parser')
 	links = soup.findAll('a')
 	for link in links:
@@ -25,16 +29,21 @@ def get_em_all(url, level):
 			continue
 		else:
 			if ((link.get('href')[0:8] == 'https://') and (link.get('href')[0:20] != 'https://www.facebook')):
-				file_links.writelines(link.get('href') + "\n") 
 				if link.get('href') in all_links:
 					continue#print('already done')
 				else:
 					all_links.append(link.get('href'))
-					print(str(level) + " levels deep")
-					if (level % 5 == 0):
-						organize_links(all_links)
-					get_em_all(link.get('href'), level)
-		
+	for found_link in all_links:
+		if found_link in done_links:
+			continue
+		else:
+			#if (level % 1 == 0):
+			organize_links(all_links)
+			get_em_all(found_link)
+			#if (level % 20 == 0):
+			#	file_links.close() #to change file access modes 
+			#	file_links = open("thelinks.txt", "w")
+
 def organize_links(link_list):
 	link_tree = {}
 	for link in link_list:
@@ -43,7 +52,7 @@ def organize_links(link_list):
 		#print("Extracted: ", domain)
 		website = []
 		if domain in link_tree:
-			print('Found domain')
+			#print('Found domain')
 			link_tree[domain].append(link)
 		else:
 			website.append(link)
@@ -59,14 +68,23 @@ def extract_domain(url, remove_http=True):
     return domain_name
 
 def display_links(link_tree):
+	os.system("clear")
 	for key, value in link_tree.items():
-		print('===' + key + '===')
+		print('><><><><><><><><> ' + key + ' :')
+		file_links.writelines('\n' + key + '::::::') 
 		for item in value:
-			print('---' + item)
+			print('		-' + item)
+			file_links.writelines('---' + item) 
 		print('--------------------------')
+	program_time = time.time()
+	seconds = (program_time - program_start)
+	minutes = (program_time - program_start) / 60
+	hours = (program_time - program_start) / 3600
+	print("Elapsed Time: " + str(round(minutes)) + ":" + str(round(minutes)) + ":" + str(round(seconds)))
+	print(str(len(all_links)) + " locations detected")
+	print(str(len(done_links)) + " webpages visited")
+	
 
+program_start = time.time()
+get_em_all(str(sys.argv[1]))
 
-
-get_em_all(str(sys.argv[1]), 0)
-
-file_links.close() #to change file access modes 
