@@ -5,10 +5,13 @@ import webbrowser
 import time
 from urllib.parse import parse_qsl, urljoin, urlparse
 import os
+import networkx
+import matplotlib.pyplot as plt
+import networkx.drawing
 
-file_links = open("thelinks.txt", "w")
 all_links = []
 done_links = []
+G = networkx.Graph()
 
 def get_em_all(url):
 	#print(str(level) + " levels deep")
@@ -33,6 +36,8 @@ def get_em_all(url):
 					continue#print('already done')
 				else:
 					all_links.append(link.get('href'))
+					G.add_node(link.get('href')) # add nodes for all links found
+					G.add_edge(url, link.get('href')) # edge between each link and the parent
 	for found_link in all_links:
 		if found_link in done_links:
 			continue
@@ -48,6 +53,9 @@ def organize_links(link_list):
 	link_tree = {}
 	for link in link_list:
 		domain = extract_domain(link)
+		googlecount = 0
+		if ('google' in domain):
+			googlecount = googlecount + 1
 		#print("Original: ", link)
 		#print("Extracted: ", domain)
 		website = []
@@ -68,24 +76,34 @@ def extract_domain(url, remove_http=True):
     return domain_name
 
 def display_links(link_tree):
+	file_links = open("thelinks.txt", "w")
 	os.system("clear")
 	for key, value in link_tree.items():
+		G.add_node(key)
 		print('><><><><><><><><> ' + key + ' :')
-		file_links.writelines('\n' + '><><><><><><><><> ' + key + ' :') 
+		file_links.writelines('\n' + '><><><><><><><><> ' + key + ' :')
 		for item in value:
-			print('		-' + item)
+			G.add_edge(key, item)
+			print('\n		-' + item)
 			file_links.writelines('		-' + item) 
-		print('--------------------------')
+		print('\n--------------------------')
 		file_links.writelines('--------------------------')
 	program_time = time.time()
-	seconds = (program_time - program_start)
-	minutes = (program_time - program_start) / 60
-	hours = (program_time - program_start) / 3600
-	print("Elapsed Time: " + str(round(minutes)) + ":" + str(round(minutes)) + ":" + str(round(seconds)))
+	seconds = round((program_time - program_start),0)
+	print("Elapsed Time: " + str( seconds))
 	print(str(len(all_links)) + " locations detected")
 	print(str(len(done_links)) + " webpages visited")
+	#if (str(seconds)[1] == '1'):
+	networkx.draw(G, node_size=10,with_labels=True, font_size=5, font_weight='bold')
+		#plt.savefig('net_map.png')
+	plt.show()
+	file_links.close()
 	
 
+	
+# Run stuff
+#plt.ion()
+plt.figure(3,figsize=(12,12))
+G.add_node(str(sys.argv[1]))
 program_start = time.time()
 get_em_all(str(sys.argv[1]))
-
