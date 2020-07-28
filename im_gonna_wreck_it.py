@@ -71,11 +71,12 @@ def display_links(link_tree):
 	os.system("clear")
 	for key, value in link_tree.items():
 		print('><><><><><><><><> ' + key + ' :')
-		file_links.writelines('\n' + key + '::::::') 
+		file_links.writelines('\n' + '><><><><><><><><> ' + key + ' :') 
 		for item in value:
 			print('		-' + item)
-			file_links.writelines('---' + item) 
+			file_links.writelines('		-' + item) 
 		print('--------------------------')
+		file_links.writelines('--------------------------')
 	program_time = time.time()
 	seconds = (program_time - program_start)
 	minutes = (program_time - program_start) / 60
