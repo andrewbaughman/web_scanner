@@ -85,9 +85,9 @@ def display_links(link_tree):
 		for item in value:
 			G.add_edge(key, item)
 			print('\n		-' + item)
-			file_links.writelines('		-' + item) 
+			file_links.writelines('\n		-' + item) 
 		print('\n--------------------------')
-		file_links.writelines('--------------------------')
+		file_links.writelines('\n--------------------------')
 	program_time = time.time()
 	seconds = round((program_time - program_start),0)
 	print("Elapsed Time: " + str( seconds))
